@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Calculator</title>
+  </head>
+  <body>
+    <div id="left-side">
+      <!-- The dynamic buttons will be inserted here -->
+    </div>
+    <!--- 
+    <div id="right-side">
+      <input id="operand1" type="number" placeholder="Operand 1" />
+      <input id="operand2" type="number" placeholder="Operand 2" />
+      <button id="calculate-btn">Calculate</button>
+      <div id="result"></div>
+    </div>-->
+
+    <script>
+      // Fetch operators from the server
+      fetch("http://127.0.0.1:5000/operators")
+        .then((response) => response.json())
+        .then((data) => {
+          // Generate buttons dynamically
+          const leftSideDiv = document.getElementById("left-side");
+          data.forEach((operator) => {
+            const button = document.createElement("button");
+            button.textContent = operator.operator;
+            button.addEventListener("click", () => {
+              // Handle button click event
+              calculate(operator.operator);
+            });
+            leftSideDiv.appendChild(button);
+          });
+        })
+        .catch((error) => console.log(error));
+
+      // Function to handle calculate button click event
+      function calculate(operator) {
+        const operand1 = document.getElementById("operand1").value;
+        const operand2 = document.getElementById("operand2").value;
+
+        // Prepare the payload
+        const payload = {
+          operator: operator,
+          operand1: operand1,
+          operand2: operand2,
+        };
+
+        // Send the calculation request to the server
+        fetch("/calculate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            // Display the result
+            const resultDiv = document.getElementById("result");
+            resultDiv.textContent = "Result: " + data.result;
+          })
+          .catch((error) => console.log(error));
+      }
+    </script>
+  </body>
+</html>
