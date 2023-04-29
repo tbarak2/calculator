@@ -30,17 +30,17 @@ For simple run the following command:
 The project build in a simple way.
 
 Calculator
-├── main.py
-├── client/
-│ └── index.html
-├── core/
-│ ├── calculator.py
-│ └── operations.py
-└── extensions/
-├── power_extension.py
-├── expression_extension.py
-├── complex_expression_extension.py
-└── response_extension_color.py
+- main.py
+- client/
+    - index.html
+- core/
+    - calculator.py
+    - operations.py
+- extensions/
+    - power_extension.py
+    - expression_extension.py
+    - complex_expression_extension.py
+    - response_extension_color.py
 
 ### Adding extension
 
