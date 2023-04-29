@@ -29,17 +29,17 @@ For simple run the following command:
 
 The project build in a simple way.
 .
-├── main.py # The main file where the flask server and apis.  
-├── client # The sub directory where all client files located.
-│ └── index.html # The html code and js.
-├── core # Where backend core file are located.
-│ ├── calculator.py # The place where the extensions are loaded and the base calulation are handled.
-│ ├── operations.py # The basic Oprations class.
-├── extexnsions # This sub directory contains all extensions.
-│ ├── power_extesoin.py # The power \** operator.
-│ ├── expression_extension.py # This extension made to handle expression like x+y+z.
-│ ├── complex_expression_extension.py # this extension knows how to handle complex expressions like: x+y+z/w+a-d*u.
-│ ├── response_extension_color.py # This extensions not handleing calculations but its effecting the reponse format.
+├── main.py
+├── client
+│ └── index.html
+├── core
+│ ├── calculator.py
+│ ├── operations.py
+├── extexnsions
+│ ├── power_extesoin.py
+│ ├── expression_extension.py
+│ ├── complex_expression_extension.py
+│ ├── response_extension_color.py
 └── ...
 
 ### Adding extension
