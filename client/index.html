@@ -4,64 +4,66 @@
     <title>Calculator</title>
   </head>
   <body>
-    <div id="left-side">
-      <!-- The dynamic buttons will be inserted here -->
-    </div>
-    <!--- 
-    <div id="right-side">
-      <input id="operand1" type="number" placeholder="Operand 1" />
-      <input id="operand2" type="number" placeholder="Operand 2" />
-      <button id="calculate-btn">Calculate</button>
-      <div id="result"></div>
-    </div>-->
-
+    <div id="operators-panel"></div>
+    <form id="calculator-form">
+      <textarea id="number-input" rows="1" cols="10"></textarea>
+      <br />
+      <button type="submit">=</button>
+    </form>
     <script>
-      // Fetch operators from the server
+      // Fetch operators
       fetch("http://127.0.0.1:5000/operators")
         .then((response) => response.json())
         .then((data) => {
-          // Generate buttons dynamically
-          const leftSideDiv = document.getElementById("left-side");
+          // Create buttons for operators
+          const operatorsPanel = document.getElementById("operators-panel");
+
           data.forEach((operator) => {
             const button = document.createElement("button");
-            button.textContent = operator.operator;
-            button.addEventListener("click", () => {
-              // Handle button click event
-              calculate(operator.operator);
+            button.innerText = operator.operator;
+            button.classList.add("operator-button");
+            operatorsPanel.appendChild(button);
+          });
+          const operatorButtons = document.querySelectorAll(".operator-button");
+          const numberInput = document.getElementById("number-input");
+
+          Array.from(operatorButtons).forEach((button) => {
+            button.addEventListener("click", function (event) {
+              event.preventDefault();
+
+              const operator = button.innerText;
+              console.log("Operator clicked:", operator);
+
+              // Append the operator to the text box
+              numberInput.value += operator;
             });
-            leftSideDiv.appendChild(button);
+          });
+          const calculatorForm = document.getElementById("calculator-form");
+          calculatorForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Get the entered expression
+            const expression = numberInput.value.trim();
+            console.log("Submitted expression:", expression);
+            const operatorsPattern = data
+              .map((op) => "\\" + op.operator)
+              .join("|");
+            const pattern = new RegExp(`[${operatorsPattern}]`);
+            const operands = expression.split(pattern);
+            const operand1 = operands[0].trim();
+            const operator = expression.match(pattern)[0];
+            const operand2 = operands[1].trim();
+            console.log("Operator:", operator);
+            console.log("Operand 1:", operand1);
+            console.log("Operand 2:", operand2);
+
+            // Clear the text box
+            numberInput.value = "";
           });
         })
-        .catch((error) => console.log(error));
-
-      // Function to handle calculate button click event
-      function calculate(operator) {
-        const operand1 = document.getElementById("operand1").value;
-        const operand2 = document.getElementById("operand2").value;
-
-        // Prepare the payload
-        const payload = {
-          operator: operator,
-          operand1: operand1,
-          operand2: operand2,
-        };
-
-        // Send the calculation request to the server
-        fetch("/calculate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            // Display the result
-            const resultDiv = document.getElementById("result");
-            resultDiv.textContent = "Result: " + data.result;
-          })
-          .catch((error) => console.log(error));
-      }
+        .catch((error) => {
+          console.error("Failed to fetch operators:", error);
+        });
     </script>
   </body>
 </html>
