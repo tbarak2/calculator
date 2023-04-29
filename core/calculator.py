@@ -12,6 +12,7 @@ class Calculator:
             "*": {"function": Operations.multiply, "is_data_needed": False},
             "/": {"function": Operations.divide, "is_data_needed": False},
         }
+        self.formatting_extensions = {}
 
     def load_extensions(self, extensions_dir):
         extensions = [
@@ -24,6 +25,8 @@ class Calculator:
                 module = importlib.import_module(f"extensions.{extension}")
                 if hasattr(module, "calculate"):
                     self.add_extension(extension, module)
+                if hasattr(module, "format_result"):
+                    self.formatting_extensions[extension] = module
 
     def add_extension(self, extension_name, module):
         if hasattr(module, "operator"):
@@ -35,13 +38,18 @@ class Calculator:
                         "is_data_needed"
                     ] = module.is_data_needed()
 
-    def calculate(self, operator, operand1, operand2, data=None):
+    def calculate(self, operator, operand1, operand2, data=None, result_extension=None):
         operation = self.operations.get(operator)
         if operation:
             function = operation["function"]
             if data is None:
-                return function(operand1, operand2)
+                result = function(operand1, operand2)
             else:
-                return function(operand1, operand2, data)
+                result = function(operand1, operand2, data)
+            if result_extension:
+                result_ext = self.formatting_extensions[result_extension]
+                result = result_ext.format_result(result)
+
+            return result
         else:
             return {"error": "Invalid operator"}

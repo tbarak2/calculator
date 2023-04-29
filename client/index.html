@@ -2,13 +2,23 @@
 <html>
   <head>
     <title>Calculator</title>
+    <style>
+      .operator-button {
+        margin: 5px;
+      }
+    </style>
   </head>
   <body>
-    <div id="operators-panel"></div>
+    <div id="operators-container">
+      <h3>Base Operators</h3>
+      <div id="base-operators-container"></div>
+      <h3>Extra Data Operators</h3>
+      <div id="extra-data-operators-container"></div>
+    </div>
     <form id="calculator-form">
-      <textarea id="number-input" rows="1" cols="10"></textarea>
+      <textarea id="number-input" rows="4" cols="50"></textarea>
       <br />
-      <button type="submit">=</button>
+      <button type="submit" value="Calculate">=</button>
     </form>
     <script>
       // Fetch operators
@@ -16,53 +26,75 @@
         .then((response) => response.json())
         .then((data) => {
           // Create buttons for operators
-          const operatorsPanel = document.getElementById("operators-panel");
+          const baseOperatorsContainer = document.getElementById(
+            "base-operators-container"
+          );
+          const extraDataOperatorsContainer = document.getElementById(
+            "extra-data-operators-container"
+          );
 
           data.forEach((operator) => {
             const button = document.createElement("button");
             button.innerText = operator.operator;
             button.classList.add("operator-button");
-            operatorsPanel.appendChild(button);
-          });
-          const operatorButtons = document.querySelectorAll(".operator-button");
-          const numberInput = document.getElementById("number-input");
 
-          Array.from(operatorButtons).forEach((button) => {
-            button.addEventListener("click", function (event) {
-              event.preventDefault();
+            // Check if operator requires extra data
+            if (operator.is_data_needed) {
+              extraDataOperatorsContainer.appendChild(button);
+            } else {
+              baseOperatorsContainer.appendChild(button);
+            }
 
-              const operator = button.innerText;
-              console.log("Operator clicked:", operator);
+            button.addEventListener("click", function () {
+              const operatorText = button.innerText;
 
               // Append the operator to the text box
-              numberInput.value += operator;
+              const numberInput = document.getElementById("number-input");
+              numberInput.value += operatorText;
             });
           });
+
+          // Create operator regex dynamically
+          const operatorsRegex = new RegExp(
+            `[${data.map((operator) => operator.operator).join("\\")}]`
+          );
+
+          // Handle form submission
           const calculatorForm = document.getElementById("calculator-form");
           calculatorForm.addEventListener("submit", function (event) {
             event.preventDefault();
 
-            // Get the entered expression
+            const numberInput = document.getElementById("number-input");
             const expression = numberInput.value.trim();
-            console.log("Submitted expression:", expression);
-            const operatorsPattern = data
-              .map((op) => "\\" + op.operator)
-              .join("|");
-            const pattern = new RegExp(`[${operatorsPattern}]`);
-            const operands = expression.split(pattern);
-            const operand1 = operands[0].trim();
-            const operator = expression.match(pattern)[0];
-            const operand2 = operands[1].trim();
+
+            // Split the expression into operator and operands
+            const operator = expression.split(operatorsRegex).find((op) => {
+              return data.find((operator) => operator.operator === op)
+                ?.is_data_needed;
+            });
+            const operands = expression.split(operatorsRegex);
+
+            let operand1, operand2, data;
+            if (operator) {
+              operand1 = operands[0].trim();
+              operand2 = operands[1].trim();
+              data = {
+                expression: expression,
+              };
+            } else {
+              operand1 = operands[0].trim();
+              operand2 = operands[1].trim();
+            }
+
             console.log("Operator:", operator);
             console.log("Operand 1:", operand1);
             console.log("Operand 2:", operand2);
+            console.log("Data:", data);
 
-            // Clear the text box
-            numberInput.value = "";
+            // Perform calculation here
+            // You can make an API call to the backend to perform the calculation
+            // using the obtained operator, operand1, operand2, and data
           });
-        })
-        .catch((error) => {
-          console.error("Failed to fetch operators:", error);
         });
     </script>
   </body>

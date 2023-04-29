@@ -27,9 +27,10 @@ def calculate():
     operator = payload["operator"]
     operand1 = payload["operand1"]
     operand2 = payload["operand2"]
+    result_extension = payload.get("result_extension")
     if "data" in payload:
         data = payload["data"]
-    result = calculator.calculate(operator, operand1, operand2, data)
+    result = calculator.calculate(operator, operand1, operand2, data, result_extension)
     return jsonify(result)
 
 
